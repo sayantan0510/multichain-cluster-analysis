@@ -82,6 +82,13 @@ python cluster_analysis.py -f traj.xtc -s topol.tpr -c 0.6 --min-pairs 3
 - Fewer clusters → more aggregation propensity
 - Larger cluster fraction → phase separation
 - Increasing Rg of the largest cluster → cluster growth (coalescence/ripening)
+- multichain_cluster_size_distribution.dat file contains a detailed framewise information of the counts of different 'n-mers'. For example, a segment like this:
+...
+1000.0 1 4
+1000.0 3 2
+1000.0 15 1
+...
+means: at t=1000.0 ps there are 4 monomers, two trimers, and one 15-mer (largest cluster).
 
 ---
 
