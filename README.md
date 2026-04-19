@@ -1,6 +1,7 @@
 # Multi-chain Cluster Analysis
 
-Distance-based cluster analysis for multi-chain polymer or protein systems using GROMACS trajectories.
+Distance-based cluster analysis for multi-chain polymer or protein systems using GROMACS(.xtc or .trr) trajectories. This code also produces a 
+simple coarse-grained HTML movie to visualize the cluster size against time. 
 
 This tool identifies clusters based on a user-defined distance cutoff the minimun number of unique pairs that defines a cluster. The GROMACS library, 'gmx clustsize' considers chain-i and chain-j to be in the same cluster, if any one atom/bead of chain-i falls within the distance cut-off of any bead of chain-j. This code allowes you to include them in the same cluster of 'n' number of sich unique pairs are present within the cut-off. Thus, we have a more robust way of defining clusters.
 
@@ -13,7 +14,7 @@ The idea is to give more control over what we call a 'cluster'. Often we see tha
 - Distance-based clustering using minimum-image PBC
 - Flexible atom selection (e.g., BB, CA, sidechains)
 - Adjustable connectivity criterion (minimum number of contacting pairs, default is =1)
-- Outputs both data files and plots
+- Outputs data files(.dat), plots(.png), and movie(.html)
 
 ---
 
@@ -22,17 +23,18 @@ The idea is to give more control over what we call a 'cluster'. Often we see tha
 - Python ≥ 3.8  
 - MDAnalysis  
 - NumPy  
-- Matplotlib  
+- Matplotlib
+- plotly  
 
 Install dependencies:
 
-pip install MDAnalysis numpy matplotlib
+pip install MDAnalysis numpy matplotlib plotly
 
 ---
 
 ## Simple Usage
 
-python cluster_analysis.py -f traj.xtc -s topol.tpr -c 0.6
+python cluster.py -f traj.xtc -s topol.tpr -c 0.6
 
 ---
 
@@ -45,21 +47,27 @@ python cluster_analysis.py -f traj.xtc -s topol.tpr -c 0.6
 - --min-pairs : Minimum number of interchain atom pairs within cutoff (default: 1)
 - --tmin-ps : Start time in ps (default: 0)
 - --tmax-ps : End time in ps (default: full trajectory)
-- --out-prefix : Output prefix (default: cluster_)
+- --out-prefix : Output prefix (default: cluster)
 - --verbose : Print progress
+- --make-html-movie : Outputs an interactive .html movie
+- --stride : Calculate clusters for every N-th frame
+- --movie-stride : make movie frames every N-th frame
+- --movie-plane : 2d projection plane (xy, yz, or zx)
+- --time-unit : ps, ns, or us
+- --movie-out : Output HTML movie file (default: <out-prefix>cluster_movie.html)
 
 ---
 
 ## Examples
 
 Default:
-python cluster_analysis.py -f traj.xtc -s topol.tpr -c 0.6
+python cluster.py -f traj.xtc -s topol.tpr -c 0.6
 
-Backbone only:
-python cluster_analysis.py -f traj.xtc -s topol.tpr -c 0.6 --atom-names BB
+Stronger cluster connectivity:
+python cluster.py -f traj.xtc -s topol.tpr -c 0.6 --min-pairs 3
 
-Stronger connectivity:
-python cluster_analysis.py -f traj.xtc -s topol.tpr -c 0.6 --min-pairs 3
+Make interactive html movie:
+python cluster.py -f traj.xtc -s topol.tpr -c 0.6 --min-pairs 3 --make-html-movie --movie-stride 10
 
 ---
 
@@ -74,6 +82,15 @@ python cluster_analysis.py -f traj.xtc -s topol.tpr -c 0.6 --min-pairs 3
 - *_mean_cluster_size.dat
 - *_mean_cluster_size.png
 - *_cluster_size_distribution.dat
+- *_cluster_movie.html
+
+---
+
+## Viewing the outputs from terminal
+
+- vim filename.dat
+- eog filename.png
+- xdg-open filename.html
 
 ---
 
