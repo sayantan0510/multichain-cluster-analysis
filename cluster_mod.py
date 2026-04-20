@@ -97,18 +97,21 @@ def get_chain_groups(u, chain_by="molnum", residues_per_chain=None):
         if residues_per_chain is None or residues_per_chain < 1:
             raise RuntimeError("--residues-per-chain must be given for resid-block")
 
-        residues = list(u.residues)
-        if len(residues) % residues_per_chain != 0:
+        residues = u.residues
+        n_res = len(residues)
+        
+        if n_res % residues_per_chain != 0:
             raise RuntimeError(
-                f"Total number of residues ({len(residues)}) is not divisible by "
+                f"Total number of residues ({n_res}) is not divisible by "
                 f"residues_per_chain ({residues_per_chain})."
             )
-
+        
         chain_groups = []
-        for i in range(0, len(residues), residues_per_chain):
-            block = residues[i:i + residues_per_chain]
+        for i in range(0, n_res, residues_per_chain):
+            block = residues[i:i + residues_per_chain]   # this stays a ResidueGroup
             chain_groups.append(block.atoms)
-        return chain_groups
+        
+        return chain_groups 
 
     raise RuntimeError(f"Unknown chain definition mode: {chain_by}")
 
