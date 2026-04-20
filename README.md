@@ -91,6 +91,9 @@ python cluster.py -f traj.xtc -s topol.tpr -c 0.6 --min-pairs 3 --make-html-movi
 - vim filename.dat
 - eog filename.png
 - xdg-open filename.html
+- The .html file is interactive. Just hover the cursor to different clusters to see more information, such as:
+
+<img width="538" height="579" alt="Screenshot 2026-04-19 at 12 28 17" src="https://github.com/user-attachments/assets/e03ae735-df03-4ffb-8158-d8c826833283" />
 
 ---
 
