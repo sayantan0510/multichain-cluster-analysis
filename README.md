@@ -7,6 +7,12 @@ This tool identifies clusters based on a user-defined distance cutoff the minimu
 
 The idea is to give more control over what we call a 'cluster'. Often we see that bead-1 of chain-1 is within the cut-off from bead-100 of chain-2, with no other beads in the proximity. Should we still call chain-1 and chain-2 part of a cluster? Probably NOT. Here, if --min-pairs is set to say '3', chain-1 and chain-2 must have at least 3 unique pairs within the distance cut-off to be called a cluster.
 
+
+
+https://github.com/user-attachments/assets/f447bb36-18b5-4d66-8c91-5b19e9de409a
+
+
+
 ---
 
 ## Features
