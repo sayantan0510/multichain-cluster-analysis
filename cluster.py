@@ -32,6 +32,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out-prefix", default="multichain_", help="Output file prefix (default: multichain_)")
     parser.add_argument("--backend", choices=["serial", "OpenMP", "distopia"], default="serial",
                         help="Distance backend for MDAnalysis (default: serial)")
+    parser.add_argument("--chain-by", choices=["molnum", "segid", "chainid", "resid-block"], default="molnum",
+                        help="How to define chains (default: molnum)")
+    parser.add_argument("--residues-per-chain",type=int,default=None,
+                        help="Required when --chain-by resid-block")
     parser.add_argument("--time-unit", choices=["ps", "ns", "us"], default="ps",
                         help="Time unit used in the HTML movie (default: ps)")
     parser.add_argument("--movie-plane", choices=["xy", "xz", "yz"], default="xy",
@@ -65,20 +69,51 @@ def build_name_selection(atom_names: list[str]) -> str:
     return " or ".join(f"name {name}" for name in cleaned)
 
 
-def get_chain_groups(u: mda.Universe):
+def get_chain_groups(u, chain_by="molnum", residues_per_chain=None):
     atoms = u.atoms
 
-    if hasattr(atoms, "molnums"):
+    if chain_by == "molnum":
+        if not hasattr(atoms, "molnums"):
+            raise RuntimeError("Topology does not contain molnums.")
         molnums = np.asarray(atoms.molnums)
         uniq = np.unique(molnums)
-        if uniq.size > 1:
-            return [atoms[molnums == m] for m in uniq]
+        return [atoms[molnums == m] for m in uniq]
 
-    frags = atoms.fragments
-    if len(frags) > 0:
-        return [frag.atoms for frag in frags]
+    if chain_by == "segid":
+        segids = np.asarray(atoms.segids)
+        uniq = [s for s in np.unique(segids) if str(s).strip()]
+        if not uniq:
+            raise RuntimeError("No segids found.")
+        return [atoms[segids == s] for s in uniq]
 
-    raise RuntimeError("Could not identify chains from topology.")
+    if chain_by == "chainid":
+        chainids = np.asarray(atoms.chainIDs)
+        uniq = [c for c in np.unique(chainids) if str(c).strip()]
+        if not uniq:
+            raise RuntimeError("No chainIDs found.")
+        return [atoms[chainids == c] for c in uniq]
+
+    if chain_by == "resid-block":
+        if residues_per_chain is None or residues_per_chain < 1:
+            raise RuntimeError("--residues-per-chain must be given for resid-block")
+
+        residues = u.residues
+        n_res = len(residues)
+        
+        if n_res % residues_per_chain != 0:
+            raise RuntimeError(
+                f"Total number of residues ({n_res}) is not divisible by "
+                f"residues_per_chain ({residues_per_chain})."
+            )
+        
+        chain_groups = []
+        for i in range(0, n_res, residues_per_chain):
+            block = residues[i:i + residues_per_chain]   # this stays a ResidueGroup
+            chain_groups.append(block.atoms)
+        
+        return chain_groups 
+
+    raise RuntimeError(f"Unknown chain definition mode: {chain_by}")
 
 
 def connected_components(adjacency: list[list[int]]) -> list[list[int]]:
@@ -407,7 +442,11 @@ def main():
 
     u = mda.Universe(args.tpr, args.trajectory)
 
-    chain_groups = get_chain_groups(u)
+    chain_groups = get_chain_groups(
+        u,
+        chain_by=args.chain_by,
+        residues_per_chain=args.residues_per_chain
+    )
     n_chains = len(chain_groups)
 
     if n_chains < 1:
