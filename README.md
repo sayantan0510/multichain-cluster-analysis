@@ -1,7 +1,6 @@
 # Multi-chain Cluster Analysis
 
-Distance-based cluster analysis for multi-chain polymer or protein systems using GROMACS(.xtc or .trr) trajectories. This code also produces a 
-simple coarse-grained HTML movie to visualize the cluster size against time. 
+Distance-based cluster analysis for multi-chain polymer or protein systems using GROMACS(.xtc or .trr) trajectories. This code also produces a simple coarse-grained HTML movie to visualize the cluster size against time. 
 
 This tool identifies clusters based on a user-defined distance cutoff the minimun number of unique pairs that defines a cluster. The GROMACS library, 'gmx clustsize' considers chain-i and chain-j to be in the same cluster, if any one atom/bead of chain-i falls within the distance cut-off of any bead of chain-j. This code allowes you to include them in the same cluster of 'n' number of sich unique pairs are present within the cut-off. Thus, we have a more robust way of defining clusters.
 
@@ -21,6 +20,7 @@ https://github.com/user-attachments/assets/f447bb36-18b5-4d66-8c91-5b19e9de409a
 - Flexible atom selection (e.g., BB, CA, sidechains)
 - Adjustable connectivity criterion (minimum number of contacting pairs, default is =1)
 - Outputs data files(.dat), plots(.png), and movie(.html)
+- Control over chain detection algorithm by --chain-by flag (primarily required if crosslinking covalent bonds are present).
 
 ---
 
@@ -44,7 +44,8 @@ python cluster.py -f traj.xtc -s topol.tpr -c 0.6
 
 ---
 
-## Command-Line Options
+## Command-Line Options 
+### python cluster.py --help
 
 - -f : Trajectory file (.xtc or .trr)
 - -s : Topology file (.tpr)
@@ -53,7 +54,9 @@ python cluster.py -f traj.xtc -s topol.tpr -c 0.6
 - --min-pairs : Minimum number of interchain atom pairs within cutoff (default: 1)
 - --tmin-ps : Start time in ps (default: 0)
 - --tmax-ps : End time in ps (default: full trajectory)
-- --out-prefix : Output prefix (default: cluster)
+- --out-prefix : Output prefix (default: multichain_)
+- --chain-by : chain selection algorithm, molnum, segid, chainid, resid-block (default: molnum)
+- --residues-per-chain : only required if '--chain-by resid-block'
 - --verbose : Print progress
 - --make-html-movie : Outputs an interactive .html movie
 - --stride : Calculate clusters for every N-th frame
@@ -74,6 +77,9 @@ python cluster.py -f traj.xtc -s topol.tpr -c 0.6 --min-pairs 3
 
 Make interactive html movie:
 python cluster.py -f traj.xtc -s topol.tpr -c 0.6 --min-pairs 3 --make-html-movie --movie-stride 10
+
+Custom chain selection:
+python cluster.py -f traj.xtc -s topol.tpr -c 0.6 --min-pairs 2 --make-html-movie --chain-by resid-block --residues-per-chain 20
 
 ---
 
