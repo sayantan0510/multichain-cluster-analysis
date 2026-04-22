@@ -1,12 +1,14 @@
 # Multi-chain Cluster Analysis
 
-Distance-based cluster analysis for multi-chain polymer or protein systems using GROMACS(.xtc or .trr) trajectories. This code also produces a simple coarse-grained HTML movie to visualize the cluster size against time. 
+Distance-based cluster analysis for multi-chain polymer or protein systems using GROMACS (.xtc or .trr) trajectories. This code also produces a simple coarse-grained HTML movie to visualize the cluster size against time. 
 
 This tool identifies clusters based on a user-defined distance cutoff the minimun number of unique pairs that defines a cluster. The GROMACS library, 'gmx clustsize' considers chain-i and chain-j to be in the same cluster, if any one atom/bead of chain-i falls within the distance cut-off of any bead of chain-j. This code allowes you to include them in the same cluster of 'n' number of sich unique pairs are present within the cut-off. Thus, we have a more robust way of defining clusters.
 
 The idea is to give more control over what we call a 'cluster'. Often we see that bead-1 of chain-1 is within the cut-off from bead-100 of chain-2, with no other beads in the proximity. Should we still call chain-1 and chain-2 part of a cluster? Probably NOT. Here, if --min-pairs is set to say '3', chain-1 and chain-2 must have at least 3 unique pairs within the distance cut-off to be called a cluster.
 
-
+### Recommendation
+To avoid artifact, process your GROMACS trajectory as follows
+- gmx_mpi trjconv -f traj.xtc -s structure.tpr -pbc cluster -o traj_processed.xtc
 
 https://github.com/user-attachments/assets/f447bb36-18b5-4d66-8c91-5b19e9de409a
 
@@ -40,7 +42,7 @@ pip install MDAnalysis numpy matplotlib plotly
 
 ## Simple Usage
 
-python cluster.py -f traj.xtc -s topol.tpr -c 0.6
+python cluster.py -f traj_processed.xtc -s topol.tpr -c 0.6
 
 ---
 
